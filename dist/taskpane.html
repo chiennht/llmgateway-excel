@@ -6,8 +6,8 @@
   <title>LLM Gateway for Excel</title>
   <!-- Office.js CDN -->
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-  <script type="module" crossorigin src="./assets/main-DkrnWEUr.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/main--qEtfCzg.css">
+  <script type="module" crossorigin src="./assets/main-Dt-7xbi7.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/main-BoFYteOQ.css">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -32,15 +32,21 @@
       <button id="btn-refresh-context" class="btn-text-icon" title="Refresh context">🔄</button>
     </div>
 
+    <!-- Active Skills Indicator Bar -->
+    <div id="skills-bar" class="skills-bar">
+      <span class="skills-title">🎯 Skills:</span>
+      <div id="skills-list" class="skills-list"></div>
+    </div>
+
     <!-- Chat Messages Scroll Container -->
     <main id="chat-container" class="chat-container">
       <div class="welcome-card">
         <h3>Welcome to LLM Gateway</h3>
-        <p>Your ultra-lightweight OpenAI-compatible assistant for Microsoft Excel.</p>
+        <p>Your ultra-lightweight OpenAI & MCP compatible assistant for Microsoft Excel.</p>
         <div class="quick-actions">
           <button class="chip-btn" data-prompt="What sheets and tables do I have in this workbook?">📋 Workbook Overview</button>
           <button class="chip-btn" data-prompt="Read and summarize the current cell selection.">🔍 Read Selection</button>
-          <button class="chip-btn" data-prompt="Help me write a formula for the active cell.">🧮 Write Formula</button>
+          <button class="chip-btn" data-prompt="Help me write an advanced XLOOKUP or INDEX-MATCH formula for active cell.">🧮 Write Formula</button>
         </div>
       </div>
     </main>
@@ -54,7 +60,7 @@
     <!-- Input Footer -->
     <footer class="app-footer">
       <div class="input-wrapper">
-        <textarea id="user-input" placeholder="Ask AI to read, analyze, format or modify your workbook..." rows="2"></textarea>
+        <textarea id="user-input" placeholder="Ask AI or type /skill to activate workflows..." rows="2"></textarea>
         <button id="btn-send" class="btn-send" title="Send Message">
           <span>➤</span>
         </button>
@@ -88,8 +94,19 @@
           </div>
 
           <div class="form-group">
+            <label for="setting-mcp-servers">MCP Server Endpoints (HTTP / SSE)</label>
+            <textarea id="setting-mcp-servers" rows="2" placeholder="http://localhost:8000/sse"></textarea>
+            <small>One URL per line. Custom tools from MCP servers will auto-load.</small>
+          </div>
+
+          <div class="form-group">
+            <label>Agent Skills</label>
+            <div id="skills-checklist" class="skills-checklist"></div>
+          </div>
+
+          <div class="form-group">
             <label for="setting-system-prompt">System Prompt</label>
-            <textarea id="setting-system-prompt" rows="4"></textarea>
+            <textarea id="setting-system-prompt" rows="3"></textarea>
           </div>
         </div>
         <div class="modal-footer">

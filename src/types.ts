@@ -3,6 +3,17 @@ export interface AppSettings {
   apiKey: string;
   model: string;
   systemPrompt: string;
+  mcpServers: string[];
+  activeSkillIds: string[];
+}
+
+export interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  instructions: string;
+  isBuiltIn?: boolean;
 }
 
 export interface ChatMessage {
@@ -32,6 +43,7 @@ export interface OpenAIToolDefinition {
     description: string;
     parameters: Record<string, unknown>;
   };
+  serverUrl?: string; // Set if tool is provided by external MCP Server
 }
 
 export interface WorkbookOverview {

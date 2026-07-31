@@ -2,6 +2,7 @@ import { loadSettings, saveSettings } from './storage/settingsStore';
 import { AppSettings, ChatMessage } from './types';
 import { runLLMChatLoop } from './api/llmClient';
 import { executeExcelTool } from './excel/tools';
+import { getAllSkills } from './skills/skillsStore';
 
 let currentSettings: AppSettings = loadSettings();
 let chatMessages: ChatMessage[] = [];
@@ -17,6 +18,7 @@ const statusBar = document.getElementById('status-bar') as HTMLElement;
 const statusText = document.getElementById('status-text') as HTMLSpanElement;
 const userInput = document.getElementById('user-input') as HTMLTextAreaElement;
 const btnSend = document.getElementById('btn-send') as HTMLButtonElement;
+const skillsListEl = document.getElementById('skills-list') as HTMLElement;
 
 // Modal Elements
 const settingsModal = document.getElementById('settings-modal') as HTMLElement;
@@ -25,6 +27,8 @@ const btnSaveSettings = document.getElementById('btn-save-settings') as HTMLButt
 const settingBaseUrl = document.getElementById('setting-base-url') as HTMLInputElement;
 const settingApiKey = document.getElementById('setting-api-key') as HTMLInputElement;
 const settingModel = document.getElementById('setting-model') as HTMLInputElement;
+const settingMcpServers = document.getElementById('setting-mcp-servers') as HTMLTextAreaElement;
+const skillsChecklistEl = document.getElementById('skills-checklist') as HTMLElement;
 const settingSystemPrompt = document.getElementById('setting-system-prompt') as HTMLTextAreaElement;
 
 // Initialize Office & App
@@ -35,6 +39,7 @@ Office.onReady(() => {
 
 function initUI() {
   updateSettingsUI();
+  renderActiveSkillsBar();
 
   // Event Listeners
   btnSettings.addEventListener('click', openSettingsModal);
@@ -68,7 +73,56 @@ function updateSettingsUI() {
   settingBaseUrl.value = currentSettings.baseUrl;
   settingApiKey.value = currentSettings.apiKey;
   settingModel.value = currentSettings.model;
+  settingMcpServers.value = (currentSettings.mcpServers || []).join('\n');
   settingSystemPrompt.value = currentSettings.systemPrompt;
+
+  renderSkillsChecklist();
+}
+
+function renderActiveSkillsBar() {
+  skillsListEl.innerHTML = '';
+  const allSkills = getAllSkills();
+  const activeIds = currentSettings.activeSkillIds || [];
+  const active = allSkills.filter((s) => activeIds.includes(s.id));
+
+  if (active.length === 0) {
+    const pill = document.createElement('span');
+    pill.className = 'skill-pill';
+    pill.textContent = 'None';
+    skillsListEl.appendChild(pill);
+    return;
+  }
+
+  for (const s of active) {
+    const pill = document.createElement('span');
+    pill.className = 'skill-pill';
+    pill.textContent = s.name;
+    skillsListEl.appendChild(pill);
+  }
+}
+
+function renderSkillsChecklist() {
+  skillsChecklistEl.innerHTML = '';
+  const allSkills = getAllSkills();
+  const activeIds = currentSettings.activeSkillIds || [];
+
+  for (const skill of allSkills) {
+    const label = document.createElement('label');
+    label.className = 'skill-checkbox-label';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = skill.id;
+    checkbox.checked = activeIds.includes(skill.id);
+    checkbox.setAttribute('data-skill-id', skill.id);
+
+    const span = document.createElement('span');
+    span.textContent = skill.name;
+
+    label.appendChild(checkbox);
+    label.appendChild(span);
+    skillsChecklistEl.appendChild(label);
+  }
 }
 
 function openSettingsModal() {
@@ -81,15 +135,30 @@ function closeSettingsModal() {
 }
 
 function handleSaveSettings() {
+  const selectedSkillIds: string[] = [];
+  skillsChecklistEl.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((cb) => {
+    if (cb.checked) {
+      selectedSkillIds.push(cb.value);
+    }
+  });
+
+  const mcpLines = settingMcpServers.value
+    .split('\n')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+
   currentSettings = {
     baseUrl: settingBaseUrl.value.trim() || 'https://api.openai.com/v1',
     apiKey: settingApiKey.value.trim(),
     model: settingModel.value.trim() || 'gpt-4o',
     systemPrompt: settingSystemPrompt.value.trim(),
+    mcpServers: mcpLines,
+    activeSkillIds: selectedSkillIds,
   };
 
   saveSettings(currentSettings);
   updateSettingsUI();
+  renderActiveSkillsBar();
   closeSettingsModal();
 }
 
@@ -237,19 +306,14 @@ function renderChatMessages() {
 }
 
 function formatMarkdown(text: string): string {
-  // Simple & safe markdown formatter for code blocks, bold, line breaks
   let escaped = text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // Code blocks
   escaped = escaped.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-  // Inline code
   escaped = escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
-  // Bold
   escaped = escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-  // Line breaks
   escaped = escaped.replace(/\n/g, '<br>');
 
   return escaped;

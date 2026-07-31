@@ -1,5 +1,7 @@
-import { AppSettings, ChatMessage, OpenAIToolCall } from '../types';
+import { AppSettings, ChatMessage, OpenAIToolCall, OpenAIToolDefinition } from '../types';
 import { EXCEL_TOOLS_SCHEMA, executeExcelTool } from '../excel/tools';
+import { executeMcpTool, fetchMcpTools } from './mcpClient';
+import { getActiveSkillsInstructions } from '../skills/skillsStore';
 
 export interface LLMStreamOptions {
   settings: AppSettings;
@@ -19,7 +21,32 @@ export async function runLLMChatLoop(options: LLMStreamOptions): Promise<ChatMes
     cleanBaseUrl += '/chat/completions';
   }
 
+  // Discover tools from configured MCP servers
+  let mcpTools: OpenAIToolDefinition[] = [];
+  if (settings.mcpServers && settings.mcpServers.length > 0) {
+    if (onStatusChange) onStatusChange('Discovering MCP tools...');
+    for (const serverUrl of settings.mcpServers) {
+      if (!serverUrl.trim()) continue;
+      const discovered = await fetchMcpTools(serverUrl);
+      if (discovered.tools.length > 0) {
+        mcpTools = [...mcpTools, ...discovered.tools];
+      }
+    }
+  }
+
+  const combinedTools: OpenAIToolDefinition[] = [...EXCEL_TOOLS_SCHEMA, ...mcpTools];
+
+  // Inject Active Skills into system prompt if system prompt exists or add one
+  const skillsInstructions = getActiveSkillsInstructions(settings.activeSkillIds || []);
   const history: ChatMessage[] = [...messages];
+
+  // Ensure system prompt reflects active skills
+  if (history.length > 0 && history[0].role === 'system' && history[0].content) {
+    if (skillsInstructions && !history[0].content.includes('=== ACTIVE AGENT SKILLS ===')) {
+      history[0].content += skillsInstructions;
+    }
+  }
+
   const maxToolLoops = 10;
   let loopCount = 0;
 
@@ -47,11 +74,17 @@ export async function runLLMChatLoop(options: LLMStreamOptions): Promise<ChatMes
       headers['Authorization'] = `Bearer ${settings.apiKey.trim()}`;
     }
 
+    // Clean tool definition objects for OpenAI payload (remove custom internal fields like serverUrl)
+    const payloadTools = combinedTools.map((t) => ({
+      type: t.type,
+      function: t.function,
+    }));
+
     const requestBody = {
       model: settings.model.trim() || 'gpt-4o',
       messages: payloadMessages,
-      tools: EXCEL_TOOLS_SCHEMA,
-      tool_choice: 'auto',
+      tools: payloadTools.length > 0 ? payloadTools : undefined,
+      tool_choice: payloadTools.length > 0 ? 'auto' : undefined,
       stream: false,
     };
 
@@ -120,12 +153,11 @@ export async function runLLMChatLoop(options: LLMStreamOptions): Promise<ChatMes
     onMessageUpdate(history);
 
     if (!toolCalls || toolCalls.length === 0) {
-      // Done! Final response received without tool calls
       if (onStatusChange) onStatusChange('Ready');
       return history;
     }
 
-    // Process tool calls
+    // Execute Tool calls (either Excel built-in or MCP tool)
     for (const toolCall of toolCalls) {
       const fnName = toolCall.function.name;
       let fnArgs: Record<string, unknown> = {};
@@ -135,11 +167,17 @@ export async function runLLMChatLoop(options: LLMStreamOptions): Promise<ChatMes
         console.warn(`Failed to parse tool arguments for ${fnName}:`, e);
       }
 
-      if (onStatusChange) {
-        onStatusChange(`Executing Excel tool: ${fnName}...`);
-      }
+      // Check if tool belongs to an MCP server
+      const mcpMatch = mcpTools.find((t) => t.function.name === fnName);
+      let toolResult;
 
-      const toolResult = await executeExcelTool(fnName, fnArgs);
+      if (mcpMatch && mcpMatch.serverUrl) {
+        if (onStatusChange) onStatusChange(`Executing MCP tool: ${fnName}...`);
+        toolResult = await executeMcpTool(mcpMatch.serverUrl, fnName, fnArgs);
+      } else {
+        if (onStatusChange) onStatusChange(`Executing Excel tool: ${fnName}...`);
+        toolResult = await executeExcelTool(fnName, fnArgs);
+      }
 
       const toolMessage: ChatMessage = {
         id: `tool-${Date.now()}-${toolCall.id}`,

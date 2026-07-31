@@ -123,6 +123,37 @@ body {
   color: var(--text-primary);
 }
 
+/* Skills Bar */
+.skills-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: #0f172a;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 11px;
+}
+
+.skills-title {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.skills-list {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+
+.skill-pill {
+  background: var(--bg-surface);
+  color: #93c5fd;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
 /* Chat Container */
 .chat-container {
   flex: 1;
@@ -354,7 +385,7 @@ textarea {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
@@ -410,6 +441,25 @@ textarea {
 .form-group small {
   font-size: 11px;
   color: var(--text-muted);
+}
+
+.skills-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg-primary);
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.skill-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
 }
 
 .modal-footer {

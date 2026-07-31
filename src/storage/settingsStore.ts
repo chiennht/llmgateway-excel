@@ -15,6 +15,8 @@ RULES & INSTRUCTIONS:
 3. When writing formulas or modifying cells, double check range coordinates and validity.
 4. Output concise, helpful explanations with proper markdown.
 5. If data or cell values are missing or unclear, report UNKNOWN or ask for clarification instead of inventing data.`,
+  mcpServers: [],
+  activeSkillIds: ['data_cleaning', 'financial_analysis', 'formula_expert'],
 };
 
 export function loadSettings(): AppSettings {
@@ -27,6 +29,8 @@ export function loadSettings(): AppSettings {
       apiKey: parsed.apiKey || DEFAULT_SETTINGS.apiKey,
       model: parsed.model || DEFAULT_SETTINGS.model,
       systemPrompt: parsed.systemPrompt || DEFAULT_SETTINGS.systemPrompt,
+      mcpServers: Array.isArray(parsed.mcpServers) ? parsed.mcpServers : DEFAULT_SETTINGS.mcpServers,
+      activeSkillIds: Array.isArray(parsed.activeSkillIds) ? parsed.activeSkillIds : DEFAULT_SETTINGS.activeSkillIds,
     };
   } catch (err) {
     console.error('Failed to load settings from localStorage:', err);
