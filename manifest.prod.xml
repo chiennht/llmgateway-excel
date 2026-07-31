@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp 
+  xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" 
+  xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" 
+  xsi:type="TaskPaneApp">
+  <Id>b29d4791-72f1-4828-89c0-9944318c5e31</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>LLM Gateway</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="LLM Gateway for Excel" />
+  <Description DefaultValue="Ultra-lightweight, OpenAI-compatible AI sidebar add-in for Microsoft Excel." />
+  <IconUrl DefaultValue="YOUR_HOSTED_URL/assets/icon-32.png" />
+  <HighResolutionIconUrl DefaultValue="YOUR_HOSTED_URL/assets/icon-80.png" />
+  <SupportUrl DefaultValue="YOUR_HOSTED_URL" />
+  <AppDomains>
+    <AppDomain>YOUR_HOSTED_URL</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Workbook" />
+  </Hosts>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="YOUR_HOSTED_URL/taskpane.html" />
+  </DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Hosts>
+      <Host xsi:type="Workbook">
+        <DesktopFormFactor>
+          <GetStarted>
+            <Title DefaultValue="LLM Gateway Assistant" />
+            <Title ResourceId="GetStarted.Title" />
+            <Description DefaultValue="Click Open LLM Gateway to launch your AI Assistant in Excel." />
+            <Description ResourceId="GetStarted.Description" />
+            <LearnMoreUrl DefaultValue="YOUR_HOSTED_URL" />
+          </GetStarted>
+          <ExtensionPoint xsi:type="PrimaryCommandSurface">
+            <CustomTab id="LLMGatewayTab">
+              <Group id="LLMGatewayGroup">
+                <Label ResourceId="Group.Label" />
+                <Icon>
+                  <bt:Image size="16" ResourceId="Icon.16x16" />
+                  <bt:Image size="32" ResourceId="Icon.32x32" />
+                  <bt:Image size="80" ResourceId="Icon.80x80" />
+                </Icon>
+                <Control xsi:type="Button" id="TaskpaneButton">
+                  <Label ResourceId="TaskpaneButton.Label" />
+                  <Supertip>
+                    <Title ResourceId="TaskpaneButton.Label" />
+                    <Description ResourceId="TaskpaneButton.Tooltip" />
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" ResourceId="Icon.16x16" />
+                    <bt:Image size="32" ResourceId="Icon.32x32" />
+                    <bt:Image size="80" ResourceId="Icon.80x80" />
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <TaskpaneId>ButtonId1</TaskpaneId>
+                    <SourceLocation ResourceId="Taskpane.Url" />
+                  </Action>
+                </Control>
+              </Group>
+              <Label ResourceId="Tab.Label" />
+            </CustomTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16x16" DefaultValue="YOUR_HOSTED_URL/assets/icon-32.png" />
+        <bt:Image id="Icon.32x32" DefaultValue="YOUR_HOSTED_URL/assets/icon-32.png" />
+        <bt:Image id="Icon.80x80" DefaultValue="YOUR_HOSTED_URL/assets/icon-80.png" />
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="GetStarted.LearnMoreUrl" DefaultValue="YOUR_HOSTED_URL" />
+        <bt:Url id="Taskpane.Url" DefaultValue="YOUR_HOSTED_URL/taskpane.html" />
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="GetStarted.Title" DefaultValue="LLM Gateway Assistant" />
+        <bt:String id="Group.Label" DefaultValue="AI Assistant" />
+        <bt:String id="Tab.Label" DefaultValue="LLM Gateway" />
+        <bt:String id="TaskpaneButton.Label" DefaultValue="Open LLM Gateway" />
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="GetStarted.Description" DefaultValue="Launch OpenAI-compatible AI assistant for Excel." />
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Open AI sidebar assistant for Excel" />
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

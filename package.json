@@ -1,0 +1,21 @@
+{
+  "name": "llmgateway-for-excel",
+  "version": "1.0.0",
+  "description": "Ultra-lightweight, OpenAI-compatible AI sidebar add-in for Microsoft Excel",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3141",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "deploy": "npm run build && gh-pages -d dist"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/office-js": "^1.0.350",
+    "gh-pages": "^6.3.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}

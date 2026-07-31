@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LLM Gateway for Excel</title>
+  <!-- Office.js CDN -->
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <link rel="stylesheet" href="./src/ui/style.css" />
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-icon">⚡</div>
+        <div class="title-group">
+          <h1>LLM Gateway</h1>
+          <span id="model-badge" class="model-badge">gpt-4o</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-settings" class="btn-icon" title="Open Settings">⚙️</button>
+      </div>
+    </header>
+
+    <!-- Context Info Bar -->
+    <div class="context-bar">
+      <span class="context-icon">📊</span>
+      <span id="active-context" class="context-text">Loading Excel Context...</span>
+      <button id="btn-refresh-context" class="btn-text-icon" title="Refresh context">🔄</button>
+    </div>
+
+    <!-- Chat Messages Scroll Container -->
+    <main id="chat-container" class="chat-container">
+      <div class="welcome-card">
+        <h3>Welcome to LLM Gateway</h3>
+        <p>Your ultra-lightweight OpenAI-compatible assistant for Microsoft Excel.</p>
+        <div class="quick-actions">
+          <button class="chip-btn" data-prompt="What sheets and tables do I have in this workbook?">📋 Workbook Overview</button>
+          <button class="chip-btn" data-prompt="Read and summarize the current cell selection.">🔍 Read Selection</button>
+          <button class="chip-btn" data-prompt="Help me write a formula for the active cell.">🧮 Write Formula</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Status Indicator -->
+    <div id="status-bar" class="status-bar hidden">
+      <span class="spinner"></span>
+      <span id="status-text">Thinking...</span>
+    </div>
+
+    <!-- Input Footer -->
+    <footer class="app-footer">
+      <div class="input-wrapper">
+        <textarea id="user-input" placeholder="Ask AI to read, analyze, format or modify your workbook..." rows="2"></textarea>
+        <button id="btn-send" class="btn-send" title="Send Message">
+          <span>➤</span>
+        </button>
+      </div>
+    </footer>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>Gateway Settings</h2>
+          <button id="btn-close-settings" class="btn-icon">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="setting-base-url">Base URL (OpenAI Compatible)</label>
+            <input type="text" id="setting-base-url" placeholder="https://api.openai.com/v1" />
+            <small>e.g. <code>http://localhost:11434/v1</code> for Ollama or <code>https://api.deepseek.com/v1</code></small>
+          </div>
+
+          <div class="form-group">
+            <label for="setting-api-key">API Key</label>
+            <input type="password" id="setting-api-key" placeholder="sk-..." />
+            <small>Optional for local models like Ollama / LM Studio</small>
+          </div>
+
+          <div class="form-group">
+            <label for="setting-model">Model Name</label>
+            <input type="text" id="setting-model" placeholder="gpt-4o" />
+            <small>e.g. <code>gpt-4o</code>, <code>deepseek-chat</code>, <code>qwen2.5-coder</code></small>
+          </div>
+
+          <div class="form-group">
+            <label for="setting-system-prompt">System Prompt</label>
+            <textarea id="setting-system-prompt" rows="4"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-save-settings" class="btn-primary">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
