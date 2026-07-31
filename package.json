@@ -1,5 +1,5 @@
 {
-  "name": "llmgateway-for-excel",
+  "name": "llmgateway-excel",
   "version": "1.0.0",
   "description": "Ultra-lightweight, OpenAI-compatible AI sidebar add-in for Microsoft Excel",
   "type": "module",
