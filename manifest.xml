@@ -5,7 +5,7 @@
   xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" 
   xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" 
   xsi:type="TaskPaneApp">
-  <Id>b29d4791-72f1-4828-89c0-9944318c5e31</Id>
+  <Id>e4d7a829-1b3c-4f8e-9d2a-7c5b6e1a9f3d</Id>
   <Version>1.0.0.0</Version>
   <ProviderName>LLM Gateway</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
