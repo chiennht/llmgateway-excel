@@ -30,39 +30,37 @@
       <Host xsi:type="Workbook">
         <DesktopFormFactor>
           <GetStarted>
-            <Title DefaultValue="LLM Gateway Assistant" />
-            <Title ResourceId="GetStarted.Title" />
-            <Description DefaultValue="Click Open LLM Gateway to launch your AI Assistant in Excel." />
-            <Description ResourceId="GetStarted.Description" />
-            <LearnMoreUrl DefaultValue="YOUR_HOSTED_URL" />
+            <Title resid="GetStarted.Title" />
+            <Description resid="GetStarted.Description" />
+            <LearnMoreUrl resid="GetStarted.LearnMoreUrl" />
           </GetStarted>
           <ExtensionPoint xsi:type="PrimaryCommandSurface">
             <CustomTab id="LLMGatewayTab">
               <Group id="LLMGatewayGroup">
-                <Label ResourceId="Group.Label" />
+                <Label resid="Group.Label" />
                 <Icon>
-                  <bt:Image size="16" ResourceId="Icon.16x16" />
-                  <bt:Image size="32" ResourceId="Icon.32x32" />
-                  <bt:Image size="80" ResourceId="Icon.80x80" />
+                  <bt:Image size="16" resid="Icon.16x16" />
+                  <bt:Image size="32" resid="Icon.32x32" />
+                  <bt:Image size="80" resid="Icon.80x80" />
                 </Icon>
                 <Control xsi:type="Button" id="TaskpaneButton">
-                  <Label ResourceId="TaskpaneButton.Label" />
+                  <Label resid="TaskpaneButton.Label" />
                   <Supertip>
-                    <Title ResourceId="TaskpaneButton.Label" />
-                    <Description ResourceId="TaskpaneButton.Tooltip" />
+                    <Title resid="TaskpaneButton.Label" />
+                    <Description resid="TaskpaneButton.Tooltip" />
                   </Supertip>
                   <Icon>
-                    <bt:Image size="16" ResourceId="Icon.16x16" />
-                    <bt:Image size="32" ResourceId="Icon.32x32" />
-                    <bt:Image size="80" ResourceId="Icon.80x80" />
+                    <bt:Image size="16" resid="Icon.16x16" />
+                    <bt:Image size="32" resid="Icon.32x32" />
+                    <bt:Image size="80" resid="Icon.80x80" />
                   </Icon>
                   <Action xsi:type="ShowTaskpane">
                     <TaskpaneId>ButtonId1</TaskpaneId>
-                    <SourceLocation ResourceId="Taskpane.Url" />
+                    <SourceLocation resid="Taskpane.Url" />
                   </Action>
                 </Control>
               </Group>
-              <Label ResourceId="Tab.Label" />
+              <Label resid="Tab.Label" />
             </CustomTab>
           </ExtensionPoint>
         </DesktopFormFactor>
