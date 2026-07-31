@@ -40,7 +40,7 @@ export async function runLLMChatLoop(options: LLMStreamOptions): Promise<ChatMes
   const skillsInstructions = getActiveSkillsInstructions(settings.activeSkillIds || []);
   const history: ChatMessage[] = [...messages];
 
-  // Ensure system prompt reflects active skills
+  // Ensure system prompt reflects active skills & strict tool execution rule
   if (history.length > 0 && history[0].role === 'system' && history[0].content) {
     if (skillsInstructions && !history[0].content.includes('=== ACTIVE AGENT SKILLS ===')) {
       history[0].content += skillsInstructions;
@@ -137,8 +137,16 @@ export async function runLLMChatLoop(options: LLMStreamOptions): Promise<ChatMes
 
     const assistantMsgObj = choice.message;
     const reasoningText = assistantMsgObj.reasoning_content || assistantMsgObj.reasoning || undefined;
-    const textContent = assistantMsgObj.content || null;
-    const toolCalls: OpenAIToolCall[] | undefined = assistantMsgObj.tool_calls;
+    let textContent = assistantMsgObj.content || null;
+    let toolCalls: OpenAIToolCall[] | undefined = assistantMsgObj.tool_calls;
+
+    // AUTO-FALLBACK PARSER: If local/quantized model outputs text JSON tool call blocks instead of native tool_calls, extract and execute them automatically!
+    if ((!toolCalls || toolCalls.length === 0) && textContent) {
+      const extractedTools = extractTextToolCalls(textContent);
+      if (extractedTools.length > 0) {
+        toolCalls = extractedTools;
+      }
+    }
 
     const assistantMessage: ChatMessage = {
       id: `asst-${Date.now()}-${loopCount}`,
@@ -162,7 +170,9 @@ export async function runLLMChatLoop(options: LLMStreamOptions): Promise<ChatMes
       const fnName = toolCall.function.name;
       let fnArgs: Record<string, unknown> = {};
       try {
-        fnArgs = JSON.parse(toolCall.function.arguments || '{}');
+        fnArgs = typeof toolCall.function.arguments === 'string'
+          ? JSON.parse(toolCall.function.arguments || '{}')
+          : (toolCall.function.arguments as Record<string, unknown>);
       } catch (e) {
         console.warn(`Failed to parse tool arguments for ${fnName}:`, e);
       }
@@ -195,4 +205,51 @@ export async function runLLMChatLoop(options: LLMStreamOptions): Promise<ChatMes
 
   if (onStatusChange) onStatusChange('Ready');
   return history;
+}
+
+function extractTextToolCalls(textContent: string): OpenAIToolCall[] {
+  const result: OpenAIToolCall[] = [];
+  if (!textContent) return result;
+
+  // Match JSON code blocks or raw JSON array/object structures printed in text
+  const jsonBlockRegex = /```(?:json)?\s*([\s\S]*?)\s*```|(\[\s*\{\s*"tool_name"[\s\S]*?\}\s*\])|(\{\s*"tool_name"[\s\S]*?\})/gi;
+  let match;
+
+  while ((match = jsonBlockRegex.exec(textContent)) !== null) {
+    const rawJsonStr = match[1] || match[2] || match[3];
+    if (!rawJsonStr) continue;
+
+    try {
+      const parsed = JSON.parse(rawJsonStr.trim());
+      const items = Array.isArray(parsed) ? parsed : [parsed];
+
+      for (const item of items) {
+        if (!item || typeof item !== 'object') continue;
+        const name = item.tool_name || item.tool || item.name || item.function;
+        const args = item.params || item.parameters || item.arguments || item.args || item;
+
+        if (
+          name &&
+          (name === 'write_cells' ||
+            name === 'read_range' ||
+            name === 'format_range' ||
+            name === 'clear_range' ||
+            name === 'get_workbook_overview')
+        ) {
+          result.push({
+            id: `text-tool-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            type: 'function',
+            function: {
+              name: String(name),
+              arguments: typeof args === 'string' ? args : JSON.stringify(args),
+            },
+          });
+        }
+      }
+    } catch (e) {
+      // Not a valid JSON tool object, ignore
+    }
+  }
+
+  return result;
 }
