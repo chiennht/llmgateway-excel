@@ -189,7 +189,8 @@ function renderChatMessages() {
     if (msg.role === 'user') {
       const bubble = document.createElement('div');
       bubble.className = 'msg-bubble';
-      bubble.textContent = msg.content || '';
+      const displayText = (msg.content || '').replace(/\n\n\[Active Context: [^\]]+\]$/, '');
+      bubble.textContent = displayText;
       msgEl.appendChild(bubble);
     } else if (msg.role === 'assistant') {
       const bubble = document.createElement('div');
